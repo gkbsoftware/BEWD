@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Homework 4: TODO List</title>
+  <script src="http://code.jquery.com/jquery-1.11.3.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="http://getbootstrap.com/examples/signin/signin.css">
+  <style type="text/css">
+    .done{
+      color: lightgreen;
+    }
+    .not-done{
+      color: tomato;
+    }
+    ul{
+      width: 300px;
+      margin: 21px auto;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <form class="form-signin">
+    <h2 class="form-signin-heading">TODO</h2>
+    <input class="form-control" id="todo" placeholder="What should I do?" required autofocus>
+    <br/>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
+  </form>
+
+  <ul></ul>
+</div>
+
+<script>
+  todos = JSON.parse(localStorage.todos || '[]')
+
+  renderTodos = function(){
+    $('ul').empty() //empty the table
+
+    for (todo of todos){
+      $('ul').append(
+        $('<li>').html(todo.name).addClass(todo.isDone ? 'done': 'not-done')
+      )
+    }
+  }
+
+  findTodoIndex = function(todoName){
+    for (var i = 0; i < todos.length; i++) {
+      if(todos[i].name == todoName){
+        return i
+      }
+    }
+    return undefined
+  }
+
+  saveTodos = function(){
+    localStorage.todos = JSON.stringify(todos)
+  }
+
+  $(document).on('click', '.done', function(event){
+    var idx = findTodoIndex($(this).text())
+    if(event.metaKey){
+      todos.splice(idx, 1) // remove todo from list permenently
+    }else{
+      todos[idx].isDone = false
+    }
+    saveTodos()
+    renderTodos()
+  })
+
+  $(document).on('click', '.not-done', function(){
+    var idx = findTodoIndex($(this).text())
+    todos[idx].isDone = true
+    saveTodos()
+    renderTodos()
+  })
+
+  $('form').submit(function(event){
+    event.preventDefault()
+
+    todo = {
+      name: $('#todo').val(),
+      isDone: false
+    }
+
+    $('#todo').val('')
+
+    todos.push(todo)
+
+    renderTodos()
+    saveTodos()
+  })
+
+  // kick things off by rendering the todo list for the first time
+  renderTodos()
+</script>
+</body>
+</html>

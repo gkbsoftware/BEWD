@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+     <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+     <style>
+      .taskToDo {
+        color: red;
+      }
+      .taskToDo:hover {
+        background-color: salmon;
+      }
+      .taskDone {
+        color: green;
+        text-decoration: line-through;
+      }
+      .taskDone:hover {
+        background-color: lime;
+      }
+      .remover {
+        float: right;
+      }
+     </style>
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <form class="form-signin">
+        <h2 class="form-signin-heading">To do:</h2>
+        <label for="inputTask" class="sr-only">Task</label>
+        <input type="task" id="inputTask" class="form-control" placeholder="Task" required autofocus>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Add Task</button>
+      </form>
+      <table class="table">
+        <thead>
+          <th>Tasks</th>
+          <th></th>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+    </div>
+
+    <script>
+
+        // [ { name: "go to work", isDone: true } , { name: "clean car", isDone: false } ]
+
+      var tasksJSON = localStorage.tasks || "[]"
+      var tasks = JSON.parse(tasksJSON)
+
+      addTask = function(task) {
+        tasks.push(task);
+
+        localStorage.tasks = JSON.stringify(tasks);
+        renderTasks();
+
+      }
+
+      removeTask = function(task) {
+
+        tasks.splice(task,1)
+
+        localStorage.tasks = JSON.stringify(tasks)
+        renderTasks()
+      }
+
+      renderTasks = function() {
+        $("tbody").empty();
+
+        for (task of tasks) {
+
+          taskIndex = tasks.indexOf(task)
+
+          var $tr = $("<tr>").append(
+                                      $("<td class='taskCell'>").html(task.name),
+                                      $('<td><button class="btn remover btn-danger btn-xs">Delete</button></td>') 
+                                    )
+          $tr.attr('id', taskIndex)
+
+          if (task.isDone) {
+            $tr.addClass("taskDone")
+          }
+          else {
+            $tr.addClass("taskToDo")
+          }
+
+          $tr.addClass("taskRow")
+
+
+          $('tbody').append($tr);
+
+        }
+
+
+      }
+
+      renderTasks()
+
+      $("form").submit(function(event) {
+
+        event.preventDefault()
+
+        addTask( {
+            name: $("#inputTask").val(),
+            isDone: false
+        } )
+
+        $("#inputTask").val("")
+      })
+
+      $(document).on("click", "button.remover", function(event) {
+
+          var rowID = $(this).parent().parent().attr('id')
+
+          removeTask(rowID)
+
+      })
+
+      $(document).on("click", "td", function(event) {
+
+        if (event.target.nodeName != "BUTTON") {
+
+          var rowID = $(this).parent().attr('id')
+
+          if (event.metaKey) {
+            removeTask(rowID)
+          }
+
+          else {
+
+            for (task of tasks) {
+
+              if (tasks.indexOf(task) == rowID) {
+                task.isDone = !task.isDone
+              }
+            }
+          }
+
+          localStorage.tasks = JSON.stringify(tasks)
+
+          renderTasks()
+        }        
+      })
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,218 @@
+<html>
+<head>
+  <title>Notes</title>
+  <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+  <style type="text/css">
+    .buffer {
+      height: 5vh;
+    }
+    p {
+      margin-top: 3vh;
+    }
+    li {
+      list-style-type: none;
+      cursor: pointer;
+    }
+    button {
+        border: 0;
+        background: transparent;
+      }
+    .adder {
+      outline: 0;
+      border: 0px solid;
+      background: #337ab7;
+      color: white;
+    }
+  </style>
+
+  <script type="text/jsx">
+    notes = JSON.parse(localStorage.notes || "[]")
+
+    function findNoteNdx(input){
+      for(ndx in notes){
+        if(notes[ndx].name == input)
+          return ndx
+      }
+      return null
+    }
+
+    function findNote(input){
+      return notes[findNoteNdx(input)]
+    }
+
+    function removeNote(input){
+      notes.splice(findNoteNdx(input), 1)
+    }
+
+    function getTime(){
+      d = new Date()
+      return "Last Edit: " + d.getMonth() + "/" + d.getDay() + " " + (d.getHours()%12 == 0 ? 12 : d.getHours()%12) + ":" + d.getMinutes() + (d.getHours()<12 ? "am" : "pm")
+    }
+
+    function saveNotes(){
+      localStorage.notes = JSON.stringify(notes)
+    }
+
+    function renderPage(){
+      React.render(<Page />, document.getElementById("content"))
+    }
+
+    TextArea = React.createClass({
+      render: function(){
+        return(
+          <div onClick={this.setEdit}>
+            <p>
+              {this.state.edit ? (<form><textarea autoFocus ref="textArea" onBlur={this.saveText} defaultValue={this.props.children} className="form-control"></textarea></form>)  : this.props.children}
+            </p>
+          </div>
+        )
+      },
+      setEdit: function(){
+        if(this.props.children == "Add Note")
+          this.props.children = ""
+        this.setState({
+          edit: true
+        })
+      },
+      saveText: function(){
+        findNote(this.props.name).text = this.refs.textArea.getDOMNode().value
+        findNote(this.props.name).date = getTime()
+        console.log(getTime())
+        saveNotes()
+        this.props.children = this.refs.textArea.getDOMNode().value
+        if(this.props.children == "")
+          this.props.children = "Add Note"
+        renderPage()
+        this.setState({edit: false})
+      },
+      getInitialState: function(){
+        return {
+          edit: false
+        }
+      }
+    })
+
+    Selector = React.createClass({
+      render: function(){
+        return (
+          <div>
+            <div className="buffer"></div>
+            <div className="form-group">
+              <form>
+                <input ref="search" onChange={this.filterNotes} value={this.props.filterText} className="form-control" placeholder="Search"/>
+              </form>
+            </div>
+            <ul>
+              {this.props.notes.map(function(item){
+                if(item.name.indexOf(this.props.filterText) == -1){
+                  return
+                }
+                return (
+                  <li key={item.name}>
+                  <span onClick={this.handleClick.bind(null, event, item.name)}>{item.name}</span>
+                  <button onClick={this.removeNote.bind(null, event, item.name)}><span className="glyphicon glyphicon-remove"></span></button>
+                  </li>
+                )
+              }.bind(this))}
+              <li>
+                
+                <form onSubmit={this.addNote}>
+                  <input ref="newNote" className="adder" placeholder="Add Note"/>
+                </form>
+                
+              </li>
+            </ul>
+          </div>
+        )
+      },
+      addNote: function(event){
+        event.preventDefault()
+        notes.push({name: this.refs.newNote.getDOMNode().value, text: "Add Note", date: getTime()})
+        this.props.onSelect(this.refs.newNote.getDOMNode().value)
+        this.refs.newNote.getDOMNode().value = ""
+        saveNotes()
+      },
+      removeNote: function(event, name){
+        event.preventDefault()
+        outName = ""
+        save = null
+        if(this.props.currNote == name && notes.length-1 != 0 && findNoteNdx(name)!=0){
+          outName = notes[findNoteNdx(name)-1].name
+        }
+        if(notes.length-1 != 0 && findNoteNdx(name)==0){
+          outName = notes[1].name
+        }
+        if(this.props.currNote != name){
+          outName = this.props.currNote
+        }
+        removeNote(name)
+        this.props.onSelect(outName)
+        saveNotes()
+      },
+      handleClick: function(event, name){
+        this.props.onSelect(name)
+      },
+      filterNotes: function(event){
+        this.props.onFilter(this.refs.search.getDOMNode().value)
+      }
+    })
+
+    Content = React.createClass({
+      render: function(){
+        obj = findNote(this.props.currNote)
+        if(obj != null)
+        return (
+          <div>
+            <div className="buffer"></div>
+            <h2>{obj.name}</h2>
+            <secondary>{obj.date}</secondary>
+            <TextArea name={obj.name}>{obj.text}</TextArea>
+          </div>
+        )
+        return <div></div>
+      }
+    })
+
+    Page = React.createClass({
+      render: function(){
+        return(
+          <div className="row">
+          <div className="bg-primary col-md-4" style={{height: 100 + 'vh'}}>
+            <Selector currNote={this.state.currNote} onFilter={this.onFilter} filterText={this.state.userInput} onSelect={this.onSelect} notes={notes} />
+          </div>
+          <div className="bg-warning col-md-8" style={{height: 100 + 'vh'}}>
+            <Content currNote={this.state.currNote}/>
+          </div>
+          </div>
+        )
+      },
+      getInitialState: function(){
+        return {
+          currNote: (notes.length > 0 ? notes[0].name : ""),
+          userInput: ""
+        }
+      },
+      onSelect: function(ndx){
+        this.setState({currNote: ndx})
+      },
+      onFilter: function(input){
+        this.setState({userInput: input})
+      }
+    })
+
+    renderPage()
+  </script>
+</head>
+<body>
+  <div id="content" class="container-fluid">
+    <div class="row">
+      
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Hello React</title>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="http://getbootstrap.com/examples/signin/signin.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+        <div id="content">
+
+        </div> <!-- /wrapper -->
+    </div> <!-- /container -->
+
+
+    <script type="text/jsx">
+
+      // typical note will look like this:
+      // { filler: "Go to the dentist", title: "TODO today", folder: "Greg's stuff", isOpen: "false"  }
+
+      var data = [
+        { filler: "Go to the dentist", title: "TODO today", folder: "Greg's stuff", isOpen: "true" } ,
+        { filler: "Dark Knight, Jaws", title: "Movie list", folder: "Greg's stuff", isOpen: "false"  }
+      ]
+
+      for (note of data) {
+        console.log(note.filler)
+      }
+
+      var NotesApp = React.createClass({
+        render: function() {
+          return (
+            <div className="notesApp">
+              notesApp
+              <FoldersList />
+            </div>
+          );
+        }
+      });
+
+      var FoldersList = React.createClass({
+        render: function() {
+          return (
+            <div className="foldersList">
+              foldersList
+              <Folder />
+            </div>
+          );
+        }
+      });
+
+      var Folder = React.createClass({
+        render: function() {
+          return (
+            <div className="folder">
+              folder
+            </div>
+          );
+        }
+      });
+
+
+
+
+
+      React.render(
+        <NotesApp />,
+        document.getElementById('content')
+      );
+
+    </script>
+  </body>
+</html>
+
+
+<!--       <form class="form-signin">
+        <h2 class="form-signin-heading">Notes</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form> -->

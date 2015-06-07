@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Hello React</title>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+
+<!--
+    <style>
+      body {
+        background-color: #FFCCCC; 
+      }
+
+      h1, h2 {
+        text-align: center
+      }
+
+      button {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .notesApp {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;        
+      }
+
+      .folderList { 
+        width: 25%;
+        background-color: #FF0000;      
+      }
+
+      .folderList h2 {
+        color: white;
+      }
+
+      .folderList h2:hover {
+        color: salmon;
+      }
+      .noteList { 
+        width: 25%;
+        background-color: #FF6666;
+      }
+      .noteEditor { 
+        width: 50%;
+        background-color: white;
+      }
+      div.inline { 
+        float:left; 
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+     </style>-->
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div id="content">
+      </div> <!-- /wrapper -->
+    </div> <!-- /container -->
+
+
+    <script type="text/jsx">
+
+    notesJSON = localStorage.notes || "[]";
+    notes = JSON.parse(notesJSON);
+
+    var blankNote = {title: "Untitled", filler: "Type note here.", isOpen: "true"};
+    var currentFolder = localStorage.currentFolder || "";
+    var currentNote = localStorage.currentNote || "Untitled";
+
+    addNote = function(note){
+      notes.push(note);
+
+      localStorage.notes = JSON.stringify(notes);
+      renderApp();
+    }
+
+    var NotesApp = React.createClass({
+      render: function(){
+
+        for (note of notes) {
+          if (note.isOpen == true) {
+            currentFolder = note.inFolder;
+            currentNote = note.filler;
+          }
+        }
+
+        console.log("currentFolder: " + currentFolder)
+
+        return (
+          <div className="notesApp">
+            <h1>Notes using React</h1>
+            <FolderList notes={this.props.notes} />
+            <NoteList />
+            <NoteEditor />
+          </div>
+        )
+      }
+    })
+
+    var FolderList = React.createClass({
+      render: function(){
+        var folderRow = [];
+        var folders = [];
+
+        for (note of notes) {
+          if ( !inArray(note.inFolder, folders) ) {
+            folders.push(note.inFolder)
+            folderRow.push( <Folder notes={note} /> )
+          }
+        }
+
+        return (
+          <div className="folderList inline">
+            <h2>Folder List</h2>
+            {folderRow}
+          </div>
+        )
+      }
+    })
+
+    var Folder = React.createClass({
+      render: function(){
+
+        return (
+          <div className="folder">
+            <h3>{this.props.notes.inFolder}</h3>
+          </div>
+        )
+      }
+    })
+
+    var NoteList = React.createClass({
+      render: function(){
+
+        var noteRow = [];
+        for (note of notes) {
+          if (note.inFolder == currentFolder){
+            noteRow.push( <Note index={notes.indexOf(note)} notes={notes} /> )
+          }
+        }
+
+        return (
+          <div className="noteList inline">
+            <h2>Note List</h2>
+            {noteRow}
+          </div>
+        )
+      }
+    })
+
+    var Note = React.createClass({
+      render: function(){
+
+        index = this.props.index
+
+        return (
+          <div className="note">
+            <h3>{this.props.notes[index].title}</h3>
+          </div>
+        )
+      }
+    })
+
+    var NoteEditor = React.createClass({
+      render: function(){
+
+        for (note of notes) {
+          if (note.isOpen == true) {
+            index = notes.indexOf(note)
+            currentNote = note.filler;
+          }
+        }
+
+        return (
+          <div className="noteEditor inline">
+            <h2>{currentNote.title}</h2>
+            <textarea className="form-control" rows="8">{currentNote.filler}</textarea>
+            <button type="button" className="btn btn-primary btn-lg btn-block">Save Note</button>
+          </div>
+        )
+      }
+    })
+
+    renderApp = function() {
+      React.render( <NotesApp notes={notes} />, document.getElementById("content") )  
+    }
+   
+    renderApp()
+
+
+    inArray = function(myItem, array) {
+      for (i of array) {
+        if (i == myItem) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    </script>
+
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+  </body>
+</html>

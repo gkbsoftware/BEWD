@@ -1,0 +1,121 @@
+<html>
+<head>
+  <!--
+    All the html here I borrowed from the boostrap signin example at:
+    http://getbootstrap.com/examples/signin
+  -->
+  <title>Homework 2</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="http://getbootstrap.com/examples/signin/signin.css">
+  <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+</head>
+<body>
+  <div class="container">
+
+    <form class="form-signin">
+      <h2 class="form-signin-heading">Please sign in</h2>
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+
+    <br>
+    <br>
+
+    <h2>Attempts</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Password</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div> <!-- /container -->
+
+  <script>
+    // Use a list of `attempts` as the model for this interaction
+    // the `attempts` will look like:
+    //
+    // [{email: 'kyle@co.co', password: 'secret'}, {email: 'paul@co.co', password: 'bigbird'}]
+    //
+    // We can only store strings to localstorage so we have to "serialize" `attempts`
+    // using JSON.stringify and JSON.parse
+    var attemptsJSON = localStorage.attempts || '[]'
+    var attempts = JSON.parse(attemptsJSON)
+
+    //
+    // define 3 functions to handle add, remove, and render of attempts
+    // (remember: defining them doesn't call them)
+    //
+    addAttempt = function(attempt){
+      attempts.push(attempt)
+
+      // save `attempts` and re-render the attemps list
+      localStorage.attempts = JSON.stringify(attempts)
+      renderAttempts()
+    }
+
+    removeAttempt = function(attempt){
+      var attemptIndex = attempts.indexOf(attempt)
+      attempts.splice(attemptIndex, 1) // modifies `attempts` directly/inplace
+
+      // save `attempts` and re-render the attemps list
+      localStorage.attempts = JSON.stringify(attempts)
+      renderAttempts()
+    }
+
+    renderAttempts = function(){
+      // if there is anything inside of tbody, clear it out
+      $('tbody').empty()
+
+      // render the table onto the page using the attempts array
+      for(attempt of attempts){
+        
+        // build up a table row with email, pasword, and a remove button
+        var $tr = $('<tr>').append(
+            $('<td>').html(attempt.email),
+            $('<td>').html(attempt.password),
+            $('<td>').html(
+              $('<span class="btn btn-danger btn-xs">Delete</span>').on('click', function(){
+
+                // when delete button is clicked, remove this particular attempt
+                // "storing" the value of `attempt` here inside of a function
+                // is called a closure
+                removeAttempt(attempt)
+              })
+            )
+          );
+
+        // append the row to the tbody
+        $('tbody').append($tr);
+      }
+    }
+
+    // call renderAttempts for the first time
+    renderAttempts()
+
+    // wire up form submission
+    $('form').submit(function(event){
+
+      //stop form from submitting back to server
+      event.preventDefault();
+
+      // get the values out of the form and store them as an attempt
+      // this will also re-render the attempts
+      addAttempt({
+        email: $('#inputEmail').val(),
+        password: $('#inputPassword').val()
+      })
+
+      // reset the form
+      $('#inputEmail, #inputPassword').val('')
+    })
+  </script>
+</body>
+</html>

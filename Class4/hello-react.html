@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello React</title>
+  <script src="https://fb.me/react-0.13.3.js"></script>
+  <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+</head>
+<body>
+  <div id="content"></div>
+
+  <script type="text/jsx">
+    var todos = [
+      {name: "go class"},
+      {name: "dont get wet"},
+      {name: "learn git"},
+      {name: "learn command prompt"},
+      {name: "learn react"},
+    ];
+
+    Todo = React.createClass({
+      render: function(){
+        return <li>{this.props.name}</li>
+      }
+    })
+
+    TodoList = React.createClass({
+      render: function(){
+        return (
+          <div>
+            <ul>
+              { this.props.todos.map(function(todo){ return <Todo name={todo.name} /> }) }
+            </ul>
+          </div>
+        );
+      }
+    })
+
+    React.render(<TodoList todos={todos} />, document.getElementById('content') )
+  </script>
+</body>
+</html>
