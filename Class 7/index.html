@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+    <style>
+      body {
+        padding: 60px 0;
+      }
+
+      table.messages {
+        table-layout: fixed;
+      }
+
+      table.messages tr.message td.user {
+        width: 200px;
+        vertical-align: top;
+        text-align: right;
+        font-weight: bold;
+      }
+
+      table.messages tr.message td.content {
+        vertical-align: top;
+      }
+
+      table.messages tr.message td.content .outer {
+        position: relative;
+      }
+
+      table.messages tr.message td.content .inner {
+        overflow: hidden;
+        position: absolute;
+        width: 100%;
+      }
+
+      table.messages tr.message td.timestamp {
+        width: 100px;
+        vertical-align: top;
+        color: #999;
+        white-space: nowrap;
+      }
+
+      .footer .new-message {
+        margin: 0;
+        padding: 0;
+      }
+
+      .footer table {
+        margin: 10px 0;
+        padding: 0;
+      }
+    </style>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+  </head>
+  <body>
+
+    <div id="content">
+    </div>
+
+
+
+    <script type="text/jsx">
+
+      var myDataRef = new Firebase('https://a7vrhthsm5p.firebaseio-demo.com/');
+
+      var name = prompt("What is your name?");
+
+      $('.new-message textarea').keypress(function (e) {
+        if (e.keyCode == 13) {
+          var text = $('.new-message textarea').val();
+          myDataRef.push({ name: name, text: text , timestamp: Date.now() });
+          $('.new-message textarea').val('');
+        }
+      });
+
+      $('.new-message button').keypress(function (e) {
+        var text = $('.new-message textarea').val();
+        myDataRef.push({ name: name, text: text, timestamp: Date.now() });
+        $('.new-message textarea').val('');
+      });
+
+      myDataRef.on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        console.log("Received message from " + message.name + " at " + moment(message.timestamp).format('h:mm A') + ": " + message.text);
+      });
+    
+      var ChatApp = React.createClass({
+        render: function(){
+            return (
+              <div className="chatApp">
+
+                <ChatMessageBox />
+
+                <ChatNav />
+
+              </div>
+
+            )
+          }
+        })
+
+        var ChatMessageBox = React.createClass({
+          render: function() {
+            return(
+              <div className="chatMessageBox">
+                <div className="container-fluid">
+                  <div className="row-fluid">
+                    <div className="col-md-12">
+                      <div className="panel panel-default">
+                        <div className="panel-heading">
+                          <h3 className="panel-title">bewd_spring_15</h3>
+                        </div>
+                        <table className="table messages">
+
+                        <ChatMessage />
+
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+        })
+
+        var ChatMessage = React.createClass({
+          render: function() {
+            return(
+              <div className="chatMessage">
+                <tr className="message">
+                  <td className="user">test</td>
+                  <td className="content">This is not a message</td>
+                  <td className="timestamp">4:20 PM</td>
+                </tr>
+              </div>
+            )
+          }
+        })        
+
+        var ChatNav = React.createClass({
+          handleChange: function(e) {
+            alert('hi')
+          },
+
+          render: function() {
+            return (
+              <div className="chatnav">
+
+                <nav className="navbar navbar-default navbar-fixed-bottom footer" role="navigation">
+                  <div className="container-fluid">
+                    <div className="new-message">
+                      <table style={{width: "100%"}}>
+                        <tr>
+                          <td>
+                            <textarea onChange={this.handleChange} className="form-control" rows="1" name="content" style={{width: "100%"}}></textarea>
+                          </td>
+                          <td style={{width: "1%"}}>
+                            <button className="btn btn-default">
+                              Send
+                            </button>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </nav>
+
+              </div>
+            )
+          }
+        })
+        
+        var renderApp = function() {
+          React.render( <ChatApp /> , document.getElementById("content") )
+        }
+
+        renderApp()
+
+    </script>
+
+  </body>
+</html>
